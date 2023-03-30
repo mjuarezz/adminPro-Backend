@@ -15,17 +15,12 @@ dbConnection();
 // CORS
 app.use( cors() );
 
+// Lectura y parseo del body
+app.use( express.json() );
+
 // Rutas
-
-
-
-app.get('/', (req, res) => {
-    res.json({
-        ok: true,
-        msg: 'Hola Mundo'
-    })
-    
-});
+app.use('/api/usuarios', require('./routes/usuarios') )
+app.use('/api/login', require('./routes/auth') )
 
 //console.log(process.env);
 
