@@ -60,17 +60,70 @@ const crearHospital = async (req, res = response ) => {
 */
 
 const actualizarHospital = async (req, res = response ) => {
-    res.json({
-        ok: true,
-        msg: 'actualizarHospital'
-    });
+    const hospitalId = req.params.id;
+    const uid = req.uid;
+    
+    try {
+        // Verificar email unique
+        const hospitalDB = await Hospital.findById( hospitalId );
+
+        if( !hospitalDB ) {
+            return res.status(404).json({
+               ok: false,
+               msg: 'El hospital no existe'
+            });
+        }
+        const cambiosHospital = {
+            ...req.body,
+            usuario: uid
+        }
+        const hospitalActualizado = await Hospital
+                                .findByIdAndUpdate( hospitalId, cambiosHospital, { new : true } );
+
+        res.json({
+            ok: true,
+            hospital: hospitalActualizado
+        });
+        
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Contactar con el administrador'
+        });
+        
+    }
 }
 
 const borrarHospital = async (req, res = response ) => {
-    res.json({
-        ok: true,
-        msg: 'borrarHospital'
-    });
+    const hospitalId = req.params.id;
+
+    try {
+        const hospitalDB = await Hospital.findById( hospitalId );
+
+        if( !hospitalDB ) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'El hospital no existe'
+            });
+        }
+
+        await Hospital.findByIdAndDelete( hospitalId ); 
+
+        // Generar respuesta exitosa
+        return res.status(201).json({
+            ok: true,
+            msg: 'Hospital eliminado'
+        });
+    
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Contactar con el administrador'
+        });
+        
+    }
 }
 
 

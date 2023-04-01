@@ -58,17 +58,75 @@ const crearMedico = async (req, res = response ) => {
 }
 
 const actualizarMedico = async (req, res = response ) => {
-    res.json({
-        ok: true,
-        msg: 'actualizarMedico'
-    });
+
+    const id = req.params.id;
+    const uid = req.uid;
+    const hid = req.body.hospital;
+    
+    try {
+        // Verificar email unique
+        const medicoDB = await Medico.findById( id );
+
+        if( !medicoDB ) {
+            return res.status(404).json({
+               ok: false,
+               msg: 'El medico no existe'
+            });
+        }
+        const cambiosMedico = {
+            ...req.body,
+            hospital: hid,
+            usuario: uid
+        }
+        const medicoActualizado = await Medico
+                                .findByIdAndUpdate( id, cambiosMedico, { new : true } );
+
+        res.json({
+            ok: true,
+            medico: medicoActualizado
+        });
+        
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Contactar con el administrador'
+        });
+        
+    }
+
+
 }
 
 const borrarMedico = async (req, res = response ) => {
-    res.json({
-        ok: true,
-        msg: 'borrarMedico'
-    });
+    const id = req.params.id;
+
+    try {
+        const medicoDB = await Medico.findById( id );
+
+        if( !medicoDB ) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'El medico no existe'
+            });
+        }
+
+        await Medico.findByIdAndDelete( id ); 
+
+        // Generar respuesta exitosa
+        return res.status(201).json({
+            ok: true,
+            msg: 'Medico eliminado'
+        });
+    
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Contactar con el administrador'
+        });
+        
+    }
 }
 
 
